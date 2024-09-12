@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.mattstein.quick-open-project</string>
+	<key>category</key>
+	<string>Productivity</string>
+	<key>connections</key>
+	<dict>
+		<key>173B9FAF-04FF-435C-943A-699232E0278B</key>
+		<array/>
+		<key>9E8BD37D-3D8D-495D-8B25-987373CA7FBE</key>
+		<array/>
+		<key>C830BA60-29C8-42AA-861A-FB347A886A9E</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>9E8BD37D-3D8D-495D-8B25-987373CA7FBE</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>FA8342C7-5F0D-48AB-A5A4-04BFAE6B9BA6</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Open in PhpStorm</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>173B9FAF-04FF-435C-943A-699232E0278B</string>
+				<key>modifiers</key>
+				<integer>131072</integer>
+				<key>modifiersubtext</key>
+				<string>Open in iTerm</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>03869EF0-FFB7-48D5-A211-A974D6A7231B</string>
+				<key>modifiers</key>
+				<integer>262144</integer>
+				<key>modifiersubtext</key>
+				<string>Reveal in Finder</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>FA8342C7-5F0D-48AB-A5A4-04BFAE6B9BA6</key>
+		<array/>
+	</dict>
+	<key>createdby</key>
+	<string>Matt Stein</string>
+	<key>description</key>
+	<string>Open project folders in your editor or terminal.</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Quick Open Project</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>openwith</key>
+				<string>/Applications/Visual Studio Code.app</string>
+				<key>sourcefile</key>
+				<string></string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openfile</string>
+			<key>uid</key>
+			<string>9E8BD37D-3D8D-495D-8B25-987373CA7FBE</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>openwith</key>
+				<string>/Applications/PhpStorm.app</string>
+				<key>sourcefile</key>
+				<string></string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openfile</string>
+			<key>uid</key>
+			<string>FA8342C7-5F0D-48AB-A5A4-04BFAE6B9BA6</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>keyword</key>
+				<string>src</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Hang on...</string>
+				<key>script</key>
+				<string>php search.php {query}</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>Open development projects folders</string>
+				<key>title</key>
+				<string>Quick Open Project</string>
+				<key>type</key>
+				<integer>5</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>C830BA60-29C8-42AA-861A-FB347A886A9E</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>applescript</key>
+				<string>on alfred_script(q)
+	set thePath to q
+	CommandRun("cd " &amp; thePath &amp; ";clear;")
+end alfred_script
+
+on CommandRun(withCmd)
+	tell application "iTerm"
+		if it is not running then
+			tell application "iTerm"
+				activate
+				delay 0.2
+				try
+					close first window
+				end try
+			end tell
+			
+			tell application "iTerm"
+				create window with profile "Default"
+				tell the current window
+					tell the current session
+						write text withCmd
+					end tell
+				end tell
+			end tell
+		else
+			--assume that iTerm is open and open a new tab
+			try
+				tell application "iTerm"
+					activate
+					tell the current window
+						create tab with profile "Default"
+						tell the current tab
+							tell the current session
+								write text withCmd
+							end tell
+						end tell
+					end tell
+				end tell
+			on error msg
+				--if all iTerm windows are closed the app stays open. In this scenario iTerm has no "current window" and will give an error when trying to create the new tab.  
+				tell application "iTerm"
+					create window with profile "Default"
+					tell the current window
+						tell the current session
+							write text withCmd
+						end tell
+					end tell
+				end tell
+			end try
+		end if
+	end tell
+end CommandRun</string>
+				<key>cachescript</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.applescript</string>
+			<key>uid</key>
+			<string>173B9FAF-04FF-435C-943A-699232E0278B</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>path</key>
+				<string></string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.revealfile</string>
+			<key>uid</key>
+			<string>03869EF0-FFB7-48D5-A211-A974D6A7231B</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string></string>
+	<key>uidata</key>
+	<dict>
+		<key>03869EF0-FFB7-48D5-A211-A974D6A7231B</key>
+		<dict>
+			<key>xpos</key>
+			<real>545</real>
+			<key>ypos</key>
+			<real>455</real>
+		</dict>
+		<key>173B9FAF-04FF-435C-943A-699232E0278B</key>
+		<dict>
+			<key>note</key>
+			<string>Open in iTerm.app</string>
+			<key>xpos</key>
+			<real>545</real>
+			<key>ypos</key>
+			<real>295</real>
+		</dict>
+		<key>9E8BD37D-3D8D-495D-8B25-987373CA7FBE</key>
+		<dict>
+			<key>xpos</key>
+			<real>540</real>
+			<key>ypos</key>
+			<real>15</real>
+		</dict>
+		<key>C830BA60-29C8-42AA-861A-FB347A886A9E</key>
+		<dict>
+			<key>xpos</key>
+			<real>195</real>
+			<key>ypos</key>
+			<real>225</real>
+		</dict>
+		<key>FA8342C7-5F0D-48AB-A5A4-04BFAE6B9BA6</key>
+		<dict>
+			<key>xpos</key>
+			<real>540</real>
+			<key>ypos</key>
+			<real>155</real>
+		</dict>
+	</dict>
+	<key>userconfigurationconfig</key>
+	<array/>
+	<key>variables</key>
+	<dict>
+		<key>IGNORE_PATTERNS</key>
+		<string></string>
+		<key>SEARCH_PATHS</key>
+		<string></string>
+	</dict>
+	<key>variablesdontexport</key>
+	<array>
+		<string>IGNORE_PATTERNS</string>
+		<string>SEARCH_PATHS</string>
+	</array>
+	<key>version</key>
+	<string></string>
+	<key>webaddress</key>
+	<string>https://mattstein.com</string>
+</dict>
+</plist>
