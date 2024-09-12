@@ -4,6 +4,10 @@ This Alfred workflow fuzzy-searches your development directories so you can quic
 
 It’s heavily tailored to how I use it, but you can change the editors quickly and even dig into `search.php` if you’d like to adjust the configuration of the underlying [Fuze](https://github.com/Loilo/Fuse) library.
 
+![Workflow screenshot](resources/screenshot.png)
+
+Custom theme using [Berkeley Mono](https://berkeleygraphics.com/typefaces/berkeley-mono/).
+
 ## Installation
 
 Download the `.alfredworkflow` file from the [latest release](https://github.com/mattstein/alfred-quick-open-project-workflow/releases) and double-click to install.
