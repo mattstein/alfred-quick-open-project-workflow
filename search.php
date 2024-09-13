@@ -8,10 +8,6 @@ use Alfred\Workflows\ParamBuilder\Mod;
 $workflow = new Workflow();
 $workflow->logger()->info('PHP version: '.phpversion());
 
-if (! $workflow->argument()) {
-    return;
-}
-
 if (empty($workflow->env('SEARCH_PATHS'))) {
     return;
 }
@@ -52,9 +48,21 @@ $fuse = new \Fuse\Fuse($list, [
     'threshold' => 0.3,
 ]);
 
-// Rock and roll
-$results = $fuse->search($workflow->argument());
-$workflow->logger()->info('Matching results: '.count($results));
+$keyword = trim($workflow->argument() ?? '');
+
+if (empty($keyword)) {
+    $results = [];
+
+    foreach ($fuse->getCollection() as $item) {
+        $results[] = [
+            'item' => $item,
+        ];
+    }
+} else {
+    // Rock and roll
+    $results = $fuse->search($keyword);
+    $workflow->logger()->info('Matching results: '.count($results));
+}
 
 foreach ($results as $result) {
     $workflow->item()
