@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Reduced minimum search requirement to a single character.
+- Added a slight input delay to smooth out processing.
+
 ## [0.0.3] - 2024-09-13
 
 ### Changed

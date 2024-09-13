@@ -48,7 +48,7 @@ foreach ($matches as $match) {
 // Prepare Fuse to search folder names and be slightly picky about it
 $fuse = new \Fuse\Fuse($list, [
     'keys' => ['folder'],
-    'minMatchCharLength' => 2,
+    'minMatchCharLength' => 1,
     'threshold' => 0.3,
 ]);
 
