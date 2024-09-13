@@ -47,7 +47,7 @@ $fuse = new \Fuse\Fuse($list, [
 ]);
 
 // Rock and roll
-$results = $fuse->search($workflow->argument());
+$results = $fuse->search($workflow->argument() ?? '');
 
 foreach ($results as $result) {
     $workflow->item()
