@@ -6,6 +6,11 @@ use Alfred\Workflows\Workflow;
 use Alfred\Workflows\ParamBuilder\Mod;
 
 $workflow = new Workflow();
+$workflow->logger()->info('PHP version: '.phpversion());
+
+if (! $workflow->argument()) {
+    return;
+}
 
 if (empty($workflow->env('SEARCH_PATHS'))) {
     return;
@@ -25,6 +30,7 @@ $searchPathString = buildSearchPathString(
 
 // Match directories
 $matches = glob($searchPathString, GLOB_ONLYDIR | GLOB_BRACE);
+$workflow->logger()->info('Search glob: '.$searchPathString);
 
 // Build a keyed list of directory folder names and full paths
 $list = [];
@@ -47,7 +53,8 @@ $fuse = new \Fuse\Fuse($list, [
 ]);
 
 // Rock and roll
-$results = $fuse->search($workflow->argument() ?? '');
+$results = $fuse->search($workflow->argument());
+$workflow->logger()->info('Matching results: '.count($results));
 
 foreach ($results as $result) {
     $workflow->item()
