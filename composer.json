@@ -1,14 +1,22 @@
 {
-    "name": "mattstein/alfred-quick-open-project-workflow",
-    "type": "project",
-    "description": "",
-    "keywords": ["alfred"],
-    "license": "MIT",
-    "require": {
-        "php": "^8.0",
-        "joetannenbaum/alfred-workflow": "^1.1",
-        "loilo/fuse": "^7.0"
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+  "name": "mattstein/alfred-quick-open-project-workflow",
+  "type": "project",
+  "description": "Quickly open project folders in your text editor or terminal.",
+  "keywords": [
+    "alfred"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "joetannenbaum/alfred-workflow": "dev-master",
+    "loilo/fuse": "^7.0"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/mattstein/alfred-workflow"
+    }
+  ]
 }
