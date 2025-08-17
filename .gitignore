@@ -1,3 +1,18 @@
+# IDE files
 .idea
+.vscode/
+
+# macOS files
 .DS_Store
-vendor/
+
+# Rust build artifacts
+target/
+
+# Build outputs
+search
+*.alfredworkflow
+
+# Debug and temporary files
+*.log
+.env
+.env.local

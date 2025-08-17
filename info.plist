@@ -126,7 +126,7 @@
 				<key>runningsubtext</key>
 				<string>Hang on...</string>
 				<key>script</key>
-				<string>php search.php {query}</string>
+				<string>./search {query}</string>
 				<key>scriptargtype</key>
 				<integer>0</integer>
 				<key>scriptfile</key>
