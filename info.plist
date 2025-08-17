@@ -228,7 +228,26 @@ end CommandRun</string>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string></string>
+	<string># Quick Open Project
+
+This Alfred workflow fuzzy-searches your development directories so you can quickly open projects in VS Code, PhpStorm, iTerm, or Finder.
+
+## Configuration
+
+You need to configure an environment variable with your project folder paths, which should be a comma-separated list of directories that contain your project folders.
+
+You can add however many you’d like, and it’ll work fine if you use Alfred on different machines and add paths relevant to each one.
+
+Example: `~/dev,~/Documents/Projects`
+
+## Usage
+
+Use the `src` keyword to fuzzy search your directories.
+
+- &lt;kbd&gt;return&lt;/kbd&gt; opens the selection in VS Code
+- &lt;kbd&gt;⌘&lt;/kbd&gt; + &lt;kbd&gt;return&lt;/kbd&gt; opens the selection in PhpStorm
+- &lt;kbd&gt;shift&lt;/kbd&gt; + &lt;kbd&gt;return&lt;/kbd&gt; opens the selection in iTerm
+- &lt;kbd&gt;ctrl&lt;/kbd&gt; + &lt;kbd&gt;return&lt;/kbd&gt; reveals the selection in Finder</string>
 	<key>uidata</key>
 	<dict>
 		<key>03869EF0-FFB7-48D5-A211-A974D6A7231B</key>
@@ -270,7 +289,29 @@ end CommandRun</string>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
-	<array/>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string></string>
+				<key>placeholder</key>
+				<string>~/dev</string>
+				<key>required</key>
+				<false/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string>Comma-separated directories that should be searched for projects.</string>
+			<key>label</key>
+			<string>Search Paths</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>SEARCH_PATHS</string>
+		</dict>
+	</array>
 	<key>variables</key>
 	<dict>
 		<key>IGNORE_PATTERNS</key>

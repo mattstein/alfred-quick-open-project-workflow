@@ -36,17 +36,27 @@ install:
 	rustup target add x86_64-apple-darwin
 
 # Create Alfred workflow package
-workflow: build
+workflow: build prepare-plist
 	@echo "Creating Alfred workflow package..."
 	zip -r quick-open-project.alfredworkflow \
 		search \
-		info.plist \
+		info.plist.tmp \
 		icon.png \
-		resources/ \
+		warning.png \
 		README.md \
 		LICENSE.md \
 		CHANGELOG.md
+	# Rename to correct info.plist in the zip
+	@python3 fix_workflow_zip.py
+	rm -f info.plist.tmp
 	@echo "✅ Created quick-open-project.alfredworkflow"
+
+# Prepare info.plist with version
+prepare-plist:
+	$(eval VERSION := $(shell grep '^version' Cargo.toml | cut -d'"' -f2))
+	@echo "Setting workflow version to $(VERSION)"
+	# Create updated plist
+	@python3 update_plist.py $(VERSION)
 
 # Create workflow package for release (current architecture)
 package: clean build workflow
@@ -63,7 +73,7 @@ help:
 	@echo "  build-universal    - Build universal binary (Intel + Apple Silicon)"
 	@echo "  test               - Run all tests"
 	@echo "  clean              - Clean build artifacts"
-	@echo "  workflow           - Create .alfredworkflow package"
+	@echo "  workflow           - Create .alfredworkflow package (auto-sets version)"
 	@echo "  package            - Clean build and create workflow package"
 	@echo "  package-universal  - Clean build universal and create workflow package"
 	@echo "  help               - Show this help message"

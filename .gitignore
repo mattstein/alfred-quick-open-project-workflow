@@ -11,6 +11,9 @@ target/
 # Build outputs
 search
 *.alfredworkflow
+info.plist.tmp
+update_plist.py
+fix_workflow_zip.py
 
 # Debug and temporary files
 *.log

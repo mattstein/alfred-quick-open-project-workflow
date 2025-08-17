@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
 use std::io::{self, BufRead};
+use nucleo_matcher::{Matcher, Config, Utf32Str};
 
 #[derive(Debug, Clone)]
 pub struct Project {
@@ -17,8 +18,8 @@ struct SearchResult {
 
 #[derive(Serialize, Deserialize)]
 struct AlfredIcon {
-    #[serde(rename = "type")]
-    icon_type: String,
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+    icon_type: Option<String>,
     path: String,
 }
 
@@ -44,19 +45,18 @@ struct AlfredResponse {
 }
 
 struct FuzzyMatcher {
-    threshold: f64,
-    min_match_char_length: usize,
+    matcher: Matcher,
 }
 
 impl FuzzyMatcher {
     fn new() -> Self {
+        let config = Config::DEFAULT;
         Self {
-            threshold: 0.3,
-            min_match_char_length: 1,
+            matcher: Matcher::new(config),
         }
     }
 
-    fn search(&self, query: &str, projects: &[Project]) -> Vec<SearchResult> {
+    fn search(&mut self, query: &str, projects: &[Project]) -> Vec<SearchResult> {
         let query = query.trim();
         
         if query.is_empty() {
@@ -72,14 +72,24 @@ impl FuzzyMatcher {
             return results;
         }
 
+        // Create buffers for UTF-32 conversion
+        let mut query_chars = Vec::new();
+        let query_utf32 = Utf32Str::new(query, &mut query_chars);
+
         let mut results: Vec<SearchResult> = projects
             .iter()
             .filter_map(|project| {
-                let score = self.calculate_score(query, &project.folder);
-                if score >= self.threshold {
+                // Create buffer for each project folder
+                let mut folder_chars = Vec::new();
+                let folder_utf32 = Utf32Str::new(&project.folder, &mut folder_chars);
+                
+                // Use nucleo-matcher to score the match
+                if let Some(score) = self.matcher.fuzzy_match(folder_utf32, query_utf32) {
+                    // Convert nucleo score (u16) to f64 and normalize
+                    let normalized_score = score as f64 / 1000.0; // nucleo scores are typically 0-1000+
                     Some(SearchResult {
                         project: project.clone(),
-                        score,
+                        score: normalized_score,
                     })
                 } else {
                     None
@@ -87,83 +97,9 @@ impl FuzzyMatcher {
             })
             .collect();
 
+        // Sort by score descending
         results.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
         results
-    }
-
-    fn calculate_score(&self, query: &str, target: &str) -> f64 {
-        let query_lower = query.to_lowercase();
-        let target_lower = target.to_lowercase();
-
-        if query_lower.len() < self.min_match_char_length {
-            return 0.0;
-        }
-
-        // Exact match
-        if target_lower == query_lower {
-            return 1.0;
-        }
-
-        // Starts with query
-        if target_lower.starts_with(&query_lower) {
-            return 0.9;
-        }
-
-        // Contains query as substring
-        if let Some(pos) = target_lower.find(&query_lower) {
-            let position_score = 1.0 - (pos as f64 / target_lower.len() as f64);
-            return 0.6 + (0.3 * position_score);
-        }
-
-        // Fuzzy match
-        self.fuzzy_match_score(&query_lower, &target_lower)
-    }
-
-    fn fuzzy_match_score(&self, query: &str, target: &str) -> f64 {
-        let query_chars: Vec<char> = query.chars().collect();
-        let target_chars: Vec<char> = target.chars().collect();
-
-        let mut query_index = 0;
-        let mut matches = 0;
-        let mut consecutive_matches = 0;
-        let mut max_consecutive = 0;
-        let mut last_match_index = None;
-
-        for (target_index, target_char) in target_chars.iter().enumerate() {
-            if query_index < query_chars.len() && *target_char == query_chars[query_index] {
-                matches += 1;
-
-                // Check if this is a consecutive match
-                if let Some(last_idx) = last_match_index {
-                    if last_idx == target_index - 1 {
-                        consecutive_matches += 1;
-                    } else {
-                        consecutive_matches = 1;
-                    }
-                } else {
-                    consecutive_matches = 1;
-                }
-
-                max_consecutive = max_consecutive.max(consecutive_matches);
-                last_match_index = Some(target_index);
-                query_index += 1;
-            }
-        }
-
-        // Must match all query characters
-        if query_index != query_chars.len() {
-            return 0.0;
-        }
-
-        // Calculate score - be more generous than the threshold
-        let match_ratio = matches as f64 / query_chars.len() as f64;
-        let consecutive_bonus = (max_consecutive as f64 / query_chars.len() as f64) * 0.3;
-        let length_ratio = query_chars.len() as f64 / target_chars.len() as f64;
-
-        // Base score with bonuses, ensure it can meet the threshold
-        let base_score = 0.4 + (match_ratio * 0.3) + consecutive_bonus + (length_ratio * 0.2);
-
-        base_score.min(0.99) // Cap below exact/prefix matches
     }
 }
 
@@ -223,7 +159,7 @@ fn create_alfred_output(results: &[SearchResult]) -> String {
                     arg: result.project.path.clone(),
                     subtitle: "Open in PhpStorm".to_string(),
                     icon: AlfredIcon {
-                        icon_type: "fileicon".to_string(),
+                        icon_type: Some("fileicon".to_string()),
                         path: "/Applications/PhpStorm.app".to_string(),
                     },
                 },
@@ -235,7 +171,7 @@ fn create_alfred_output(results: &[SearchResult]) -> String {
                     arg: result.project.path.clone(),
                     subtitle: "Open in iTerm".to_string(),
                     icon: AlfredIcon {
-                        icon_type: "fileicon".to_string(),
+                        icon_type: Some("fileicon".to_string()),
                         path: "/Applications/iTerm.app".to_string(),
                     },
                 },
@@ -247,7 +183,7 @@ fn create_alfred_output(results: &[SearchResult]) -> String {
                     arg: result.project.path.clone(),
                     subtitle: "Reveal in Finder".to_string(),
                     icon: AlfredIcon {
-                        icon_type: "fileicon".to_string(),
+                        icon_type: Some("fileicon".to_string()),
                         path: "/System/Library/CoreServices/Finder.app".to_string(),
                     },
                 },
@@ -258,7 +194,7 @@ fn create_alfred_output(results: &[SearchResult]) -> String {
                 subtitle: result.project.path.clone(),
                 arg: result.project.path.clone(),
                 icon: AlfredIcon {
-                    icon_type: "fileicon".to_string(),
+                    icon_type: Some("fileicon".to_string()),
                     path: "/Applications/Visual Studio Code.app".to_string(),
                 },
                 mods,
@@ -275,12 +211,12 @@ pub fn process_search_request(query: &str, search_paths: &str, ignore_patterns: 
     if search_paths.is_empty() {
         let warning_response = AlfredResponse {
             items: vec![AlfredItem {
-                title: "⚠️ SEARCH_PATHS not configured".to_string(),
-                subtitle: "Click to open workflow settings and add your project directories".to_string(),
-                arg: "alfred://open/preferences/workflows".to_string(),
+                title: "Search paths not configured".to_string(),
+                subtitle: "Add directories for the Quick Open Project workflow".to_string(),
+                arg: "alfred://workflow/com.mattstein.quick-open-project".to_string(),
                 icon: AlfredIcon {
-                    icon_type: "fileicon".to_string(),
-                    path: "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertCautionIcon.icns".to_string(),
+                    icon_type: None,
+                    path: "./warning.png".to_string(),
                 },
                 mods: std::collections::HashMap::new(),
             }],
@@ -289,7 +225,7 @@ pub fn process_search_request(query: &str, search_paths: &str, ignore_patterns: 
     }
 
     let projects = find_projects(search_paths, ignore_patterns, home_path);
-    let matcher = FuzzyMatcher::new();
+    let mut matcher = FuzzyMatcher::new();
     let results = matcher.search(query, &projects);
     create_alfred_output(&results)
 }
@@ -340,10 +276,11 @@ mod tests {
         assert_eq!(parsed.items.len(), 1);
         
         let item = &parsed.items[0];
-        assert!(item.title.contains("SEARCH_PATHS not configured"));
-        assert!(item.subtitle.contains("workflow settings"));
-        assert_eq!(item.arg, "alfred://open/preferences/workflows");
-        assert!(item.icon.path.contains("AlertCautionIcon"));
+        assert!(item.title.contains("Search paths not configured"));
+        assert!(item.subtitle.contains("directories for the Quick Open Project workflow"));
+        assert!(item.arg.contains("alfred://workflow"));
+        assert_eq!(item.icon.icon_type, None);
+        assert_eq!(item.icon.path, "./warning.png");
     }
 
     #[test]
@@ -523,7 +460,7 @@ mod tests {
         assert!(!item.title.is_empty());
         assert!(!item.subtitle.is_empty());
         assert!(!item.arg.is_empty());
-        assert_eq!(item.icon.icon_type, "fileicon");
+        assert_eq!(item.icon.icon_type, Some("fileicon".to_string()));
         assert!(item.icon.path.contains("Visual Studio Code"));
         
         // Verify modifier keys
