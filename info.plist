@@ -114,7 +114,7 @@
 				<key>escaping</key>
 				<integer>127</integer>
 				<key>keyword</key>
-				<string>src</string>
+				<string>{var:keyword}</string>
 				<key>queuedelaycustom</key>
 				<integer>1</integer>
 				<key>queuedelayimmediatelyinitially</key>
@@ -303,13 +303,34 @@ Use the `src` keyword to fuzzy search your directories.
 				<true/>
 			</dict>
 			<key>description</key>
-			<string>Comma-separated directories that should be searched for projects.</string>
+			<string>Comma-separated directories to be searched for projects.</string>
 			<key>label</key>
 			<string>Search Paths</string>
 			<key>type</key>
 			<string>textfield</string>
 			<key>variable</key>
 			<string>SEARCH_PATHS</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>src</string>
+				<key>placeholder</key>
+				<string></string>
+				<key>required</key>
+				<true/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string>Set your own keyword if you don’t want it to be “src”.</string>
+			<key>label</key>
+			<string>Workflow Keyword</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>keyword</string>
 		</dict>
 	</array>
 	<key>variables</key>
