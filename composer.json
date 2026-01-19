@@ -7,9 +7,12 @@
   ],
   "license": "MIT",
   "require": {
-    "php": "^8.0",
+    "php": "^8.2",
     "joetannenbaum/alfred-workflow": "dev-master",
     "loilo/fuse": "^7.0"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.0"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
@@ -18,5 +21,13 @@
       "type": "vcs",
       "url": "https://github.com/mattstein/alfred-workflow"
     }
-  ]
+  ],
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "scripts": {
+    "test": "pest"
+  }
 }
