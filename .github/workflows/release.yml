@@ -7,13 +7,19 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Composer dependencies
-        uses: php-actions/composer@v6
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          php_version: "8.2"
+          go-version: "1.22"
+      - name: Build search binary
+        run: |
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o search_amd64 .
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o search_arm64 .
+          lipo -create -output search search_amd64 search_arm64
+          rm -f search_amd64 search_arm64
       # Store version number without `v`
       - name: Write release version
         run: |
@@ -24,7 +30,7 @@ jobs:
         uses: com30n/build-alfred-workflow@v1
         with:
           workflow_dir: .
-          exclude_patterns: ".git/* .gitignore .github/* docker_tag Dockerfile-php-build DOCKER_ENV output.log resources/*"
+          exclude_patterns: ".git/* .gitignore .github/* build-binary.sh go.mod *.go *_test.go resources/* search_amd64 search_arm64 target/*"
           custom_version: "${{ env.VERSION }}"
       - name: Create release
         id: create_release

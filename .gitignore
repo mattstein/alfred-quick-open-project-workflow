@@ -1,4 +1,6 @@
 .idea
 .DS_Store
-vendor/
-composer.lock
+search
+search_amd64
+search_arm64
+target/

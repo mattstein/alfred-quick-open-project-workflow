@@ -2,7 +2,7 @@
 
 This Alfred workflow fuzzy-searches your development directories so you can quickly open projects in VS Code, PhpStorm, iTerm, or Finder.
 
-It’s heavily tailored to how I use it, but you can change the editors quickly and even dig into `search.php` if you’d like to adjust the configuration of the underlying [Fuze](https://github.com/Loilo/Fuse) library.
+It now runs as a compiled Go binary, and you can adjust the fuzzy matching or editor icons in `main.go` if you want to customize behavior.
 
 ![Workflow screenshot](resources/screenshot.png)
 
