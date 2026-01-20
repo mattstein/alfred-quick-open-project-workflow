@@ -38,3 +38,21 @@ func TestPrefixMatchSortsAheadOfContains(t *testing.T) {
 		t.Fatalf("expected contains match last, got %q", results[2].Item.Folder)
 	}
 }
+
+func TestEmptyKeywordShowsAllResults(t *testing.T) {
+	list := []listItem{
+		{Folder: "alpha", Path: "/tmp/alpha"},
+		{Folder: "beta", Path: "/tmp/beta"},
+		{Folder: "gamma", Path: "/tmp/gamma"},
+	}
+
+	results := buildResults(list, "")
+	if len(results) != len(list) {
+		t.Fatalf("expected %d results, got %d", len(list), len(results))
+	}
+
+	results = buildResults(list, "   ")
+	if len(results) != len(list) {
+		t.Fatalf("expected %d results for whitespace keyword, got %d", len(list), len(results))
+	}
+}
